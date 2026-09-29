@@ -1,7 +1,7 @@
 /**
  * Software: AgroGuard
  * Autoria: Alba Morgana
- * Finalidade: Registro no INPI via Edital NITRO 002/2026
+ * Finalidade: projeto como um software autoral em constante evolução e aberto a contribuições/demonstrações de portfólio
  */
 
 import org.springframework.boot.SpringApplication;
