@@ -1,3 +1,7 @@
+/**
+ * Software: AgroGuard
+ * Autoria: Alba Morgana
+ */
 package com.agroguard;
 
 import org.springframework.boot.SpringApplication;
