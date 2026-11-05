@@ -1,68 +1,84 @@
 # AgroGuard
 
-Sistema de registro e verificação de integridade de cargas portuárias para operações de comércio exterior.
+API REST para registrar cargas portuárias e gerar um hash SHA-256 dos dados recebidos. O hash permite verificar se os dados usados no registro foram alterados posteriormente.
 
-## 📋 Sobre o projeto
+## Tecnologias
 
-O AgroGuard nasceu da combinação entre experiência prática em comércio exterior e desenvolvimento de software, com o objetivo de trazer mais rastreabilidade e confiabilidade para o registro de cargas em operações portuárias.
+- Java 17
+- Spring Boot 3.5.6
+- Spring Web
+- Spring Validation
+- Maven
+- JUnit 5 e Spring Boot Test
 
-O sistema gera um hash criptográfico (SHA-256) para cada carga registrada, garantindo que os dados não possam ser alterados sem que a violação seja detectável — um princípio de integridade de dados aplicado ao contexto logístico e aduaneiro.
+## Como executar
 
-## ⚙️ Funcionalidades
-
-- Registro de cargas portuárias via API REST
-- Geração automática de hash SHA-256 para verificação de integridade
-- Estrutura baseada em `records` (Java 17+) para modelagem limpa dos dados
-
-## 🛠️ Tecnologias utilizadas
-
-- Java 17+
-- Spring Boot
-- Spring Web (REST)
-- Java Security (MessageDigest / SHA-256)
-
-## 🚀 Como executar
+Clone o repositório e execute:
 
 ```bash
 ./mvnw spring-boot:run
 ```
 
-A aplicação sobe por padrão na porta `8080`.
+No Windows, use:
 
-## 📡 Endpoints
+```bat
+mvnw.cmd spring-boot:run
+```
+
+A aplicação inicia na porta `8080`.
+
+## Endpoint
 
 ### `POST /registrar-carga`
 
-Registra uma nova carga e retorna o hash de integridade gerado.
+Registra uma carga e retorna a carga recebida com seu hash SHA-256.
 
-**Corpo da requisição (exemplo):**
+Exemplo:
+
+```bash
+curl -X POST http://localhost:8080/registrar-carga \
+  -H "Content-Type: application/json" \
+  -d '{
+    "id": "CARGA-001",
+    "descricao": "Soja em grãos - 20 toneladas",
+    "origem": "Porto de Santos",
+    "destino": "Porto de Roterdã",
+    "timestamp": "2026-07-02T10:00:00"
+  }'
+```
+
+Resposta esperada:
+
 ```json
 {
-  "id": "CARGA-001",
-  "descricao": "Soja em grãos - 20 toneladas",
-  "origem": "Porto de Santos",
-  "destino": "Porto de Roterdã",
-  "timestamp": "2026-07-02T10:00:00"
+  "carga": {
+    "id": "CARGA-001",
+    "descricao": "Soja em grãos - 20 toneladas",
+    "origem": "Porto de Santos",
+    "destino": "Porto de Roterdã",
+    "timestamp": "2026-07-02T10:00:00"
+  },
+  "hashSha256": "528d97d8b0d424b101c1dd4bb0245f4adb4758be81f08a65f53521e96cc90237"
 }
 ```
 
-**Resposta (exemplo):**
-```json
-{
-  "carga": { ... },
-  "hashSha256": "a1b2c3..."
-}
-```
+Campos `id`, `descricao`, `origem`, `destino` e `timestamp` são obrigatórios. Quando algum deles é inválido ou ausente, a API responde `400 Bad Request` com os campos que precisam ser corrigidos.
 
-## 🗺️ Roadmap
+## Implementado
 
-- [ ] Validação de dados de entrada (`@Valid`)
-- [ ] Persistência em banco de dados
-- [ ] Autenticação e controle de acesso
-- [ ] Consulta de cargas registradas por hash
+- API Spring Boot executável com Maven Wrapper.
+- Registro de cargas pelo endpoint `POST /registrar-carga`.
+- Validação dos campos obrigatórios.
+- Geração determinística de hash SHA-256.
+- Resposta de erro `400` com mensagens por campo.
+- Testes automatizados para o serviço de hash e para o endpoint.
 
-## ✍️ Autoria
+## Planejado
 
-Desenvolvido por **Alba Morgana** — estudante de Análise e Desenvolvimento de Sistemas e formada em Comércio Exterior.
+- Persistência das cargas em banco de dados.
+- Autenticação e controle de acesso.
+- Consulta de cargas por hash.
 
-Projeto em desenvolvimento, submetido ao Edital NITRO 002/2026 (Porto Digital / Prefeitura do Recife) para registro de software no INPI.
+## Autoria
+
+Desenvolvido por **Alba Morgana**.
