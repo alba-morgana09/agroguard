@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -64,5 +65,36 @@ class CargaControllerTest {
                 .andExpect(jsonPath("$.mensagem").value("Dados inválidos."))
                 .andExpect(jsonPath("$.campos.id").value("id é obrigatório"))
                 .andExpect(jsonPath("$.campos.timestamp").value("timestamp é obrigatório"));
+    }
+
+    @Test
+    void deveListarCargaExemploEConsultarLogsTelemetriaELacre() throws Exception {
+        mockMvc.perform(get("/cargas"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").exists());
+        mockMvc.perform(get("/cargas/CARGA-001/logs"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].hashAnterior").exists())
+                .andExpect(jsonPath("$[0].hash").exists());
+        mockMvc.perform(get("/cargas/CARGA-001/telemetria"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.temperatura").exists())
+                .andExpect(jsonPath("$.latitude").exists());
+        mockMvc.perform(post("/cargas/CARGA-001/lacre")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"acao\":\"ABRIR\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statusLacre").value("ABERTO"));
+        mockMvc.perform(get("/cargas/CARGA-001/logs/verificar"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.integra").value(true));
+    }
+
+    @Test
+    void deveRetornar404ParaCargaInexistente() throws Exception {
+        mockMvc.perform(get("/cargas/INEXISTENTE"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.mensagem").value("Carga não encontrada: INEXISTENTE"));
     }
 }
