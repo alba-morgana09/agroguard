@@ -27,7 +27,37 @@ mvnw.cmd spring-boot:run
 
 A aplicação inicia na porta `8080`.
 
-## Endpoint
+## Endpoints
+
+### `GET /cargas`
+
+Lista as cargas em memória.
+
+### `GET /cargas/{id}`
+
+Consulta uma carga por ID.
+
+### `GET /cargas/{id}/logs`
+
+Retorna a trilha de auditoria com `id`, `timestamp`, `evento`, `hashAnterior` e `hash`.
+
+### `GET /cargas/{id}/logs/verificar`
+
+Recalcula a cadeia SHA-256 e retorna se ela está íntegra.
+
+### `GET /cargas/{id}/telemetria`
+
+Retorna temperatura, umidade, latitude e longitude simuladas.
+
+### `POST /cargas/{id}/lacre`
+
+Atualiza o lacre e registra o evento:
+
+```bash
+curl -X POST http://localhost:8080/cargas/CARGA-001/lacre \
+  -H "Content-Type: application/json" \
+  -d '{"acao":"ABRIR"}'
+```
 
 ### `POST /registrar-carga`
 
@@ -72,6 +102,16 @@ Campos `id`, `descricao`, `origem`, `destino` e `timestamp` são obrigatórios. 
 - Geração determinística de hash SHA-256.
 - Resposta de erro `400` com mensagens por campo.
 - Testes automatizados para o serviço de hash e para o endpoint.
+- Três cargas de exemplo são carregadas na inicialização.
+- CORS configurável em `app.cors.allowed-origins`, limitado por padrão a
+  `http://localhost:5173` e `https://alba-morgana09.github.io`.
+
+## Simulado versus real
+
+Esta versão é totalmente em memória e não se conecta a banco, rastreador ou sensores.
+A telemetria é gerada pelo backend com valores simulados e coerentes; ela não vem de
+sensores físicos. A trilha de auditoria também é mantida apenas durante a execução da
+aplicação.
 
 ## Planejado
 
